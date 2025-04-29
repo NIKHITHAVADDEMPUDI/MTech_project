@@ -22,8 +22,8 @@ jobs:
     - name: Build and push image with Podman
       run: |
         IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
-        podman build -t $IMAGE .
-        podman push $IMAGE
+        docker build -t $IMAGE .
+        docker push $IMAGE
 
     - name: Deploy to Minikube with kubectl
       run: |
