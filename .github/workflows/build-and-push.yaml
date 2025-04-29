@@ -1,0 +1,28 @@
+name: Build and Push with Docker
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Image with Docker
+        run: |
+          IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          docker build -t $IMAGE .
+
+      - name: Push Image to Docker Hub
+        run: |
+          IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          docker push $IMAGE
+
