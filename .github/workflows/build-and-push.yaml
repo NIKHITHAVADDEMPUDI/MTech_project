@@ -46,6 +46,12 @@ jobs:
         # Set the kubectl context to Minikube
         kubectl config use-context minikube
 
+    - name: Pull the image using Podman in Minikube
+      run: |
+        IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"
+        # Pull the image into Minikube's container runtime (Podman)
+        podman pull $IMAGE_NAME
+
     - name: Deploy the app to Minikube
       run: |
         # Define the Kubernetes deployment YAML
