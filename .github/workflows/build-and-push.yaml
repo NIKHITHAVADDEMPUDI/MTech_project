@@ -1,5 +1,5 @@
 name: Build, Push, and Deploy Image to Minikube with Podman
-#1
+
 on:
   push:
     branches:
@@ -24,12 +24,12 @@ jobs:
 
     - name: Build the image using Podman
       run: |
-        IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Name your image (e.g., myapp)
+        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Name your image (e.g., myapp)
         podman build -t $IMAGE_NAME .  # Use the Dockerfile to build the image
 
     - name: Push the image to Docker Hub using Podman
       run: |
-        IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Ensure proper naming
+        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Ensure proper naming
         podman push $IMAGE_NAME
 
     - name: Delete existing Minikube cluster (if it exists)
@@ -46,11 +46,10 @@ jobs:
         # Set the kubectl context to Minikube
         kubectl config use-context minikube
 
-    - name: Pull the image using Podman in Minikube
+    - name: Pull the image from Docker Hub
       run: |
-        IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"
-        # Pull the image into Minikube's container runtime (Podman)
-        podman pull $IMAGE_NAME
+        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Correct the image name
+        podman pull $IMAGE_NAME  # Pull the image from Docker Hub
 
     - name: Deploy the app to Minikube
       run: |
@@ -72,7 +71,7 @@ jobs:
             spec:
               containers:
               - name: myapp
-                image: "${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Use the newly built image
+                image: "docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Use the newly built image from Docker Hub
                 ports:
                 - containerPort: 8080
         EOF
