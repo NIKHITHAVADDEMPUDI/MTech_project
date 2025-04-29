@@ -38,8 +38,8 @@ jobs:
 
     - name: Set up Minikube
       run: |
-        # Start Minikube with Kubernetes 1.21.0 and Podman as the driver
-        minikube start --kubernetes-version=v1.21.0 --driver=podman --cni=bridge --cri=crio
+        # Start Minikube with Podman as the driver and CRI-O runtime (No Kubernetes version specified)
+        minikube start --driver=podman --container-runtime=cri-o --cni=bridge
 
     - name: Set up kubectl
       run: |
