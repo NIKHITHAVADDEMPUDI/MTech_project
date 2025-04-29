@@ -10,59 +10,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout the repository code
+    # 1. Checkout code
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Log in to Docker Hub using secrets (configure in GitHub settings)
+    # 2. Log in to Docker Hub (or any container registry you're using)
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Build the Docker image
+    # 3. Build the Docker image
     - name: Build Docker image
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/myapp:latest .
 
-    # Push the Docker image to Docker Hub
+    # 4. Push the Docker image to Docker Hub (or your registry)
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/myapp:latest
 
-    # Set up Minikube with Podman as the driver and CRIO as the runtime
+    # 5. Set up Minikube with Podman driver and CRIO runtime
     - name: Set up Minikube with Podman driver and CRIO runtime
       run: |
-        # Start Minikube with Podman as the driver and CRIO as the runtime
         minikube start --driver=podman --container-runtime=crio
 
-        # Set up kubectl to use Minikube
         kubectl config use-context minikube
 
-    # Check if deployment exists
-    - name: Check if deployment exists
-      id: deployment_check
+    # 6. Deploy or update the deployment with the new image
+    - name: Deploy or Update the Deployment on Minikube
       run: |
+        # Check if deployment exists
         kubectl get deployments myapp-deployment || echo "Deployment does not exist" > result.txt
 
-    # Deploy the image (create or update)
-    - name: Deploy to Minikube
-      run: |
         if grep -q "Deployment does not exist" result.txt; then
-          # Deployment does not exist, create it
+          # Deployment does not exist, create a new deployment
           kubectl apply -f deployment.yaml
         else
-          # Deployment exists, update it
-          kubectl set image deployment/myapp-deployment myapp=${{ secrets.DOCKER_USERNAME }}/myapp:latest
+          # Deployment exists, update the image
+          kubectl set image deployment/myapp-deployment myapp=${{ secrets.DOCKER_USERNAME }}/myapp:latest --record
+          
+          # Trigger a redeployment by adding an annotation (this forces Kubernetes to detect a new change even with the same image tag)
+          kubectl annotate deployment myapp-deployment kubernetes.io/change-cause="Updated by GitHub Actions" --overwrite
         fi
 
-    # Wait for the deployment to complete (either create or update)
+    # 7. Wait for the deployment rollout to finish
     - name: Wait for deployment rollout
       run: |
         kubectl rollout status deployment/myapp-deployment
 
-    # Expose the service to access externally (optional, if needed)
+    # 8. Expose the service (optional, if you need external access)
     - name: Expose the service
       run: |
         kubectl expose deployment myapp-deployment --type=LoadBalancer --name=myapp-service
