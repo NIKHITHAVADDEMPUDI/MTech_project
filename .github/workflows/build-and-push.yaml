@@ -78,12 +78,19 @@ jobs:
 
     - name: Create NodePort Service
       run: |
-        # Define the Kubernetes NodePort service YAML
-        kubectl expose deployment myapp-deployment --type=NodePort --name=myapp-service --port=8080 --target-port=8080
-
-    - name: Get the NodePort and access the app
-      run: |
-        # Get the NodePort value
-        NODE_PORT=$(kubectl get svc myapp-service -o=jsonpath='{.spec.ports[0].nodePort}')
-        echo "The application is accessible at http://$(minikube ip):$NODE_PORT"
+        # Define the explicit NodePort service YAML without protocol
+        kubectl apply -f - <<EOF
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: myapp-service
+        spec:
+          selector:
+            app: myapp
+          ports:
+            - port: 8080
+              targetPort: 8080
+              nodePort: 30007  # Specify the NodePort manually (or let it choose if omitted)
+          type: NodePort
+        EOF
 
