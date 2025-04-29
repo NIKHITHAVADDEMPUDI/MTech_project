@@ -1,16 +1,16 @@
-name: Build and Push Docker Image
-#1
+name: Build and Push Image with Podman
+
 on:
   push:
     branches:
-      - main
+      - main  # Trigger when changes are pushed to the `main` branch
 
 jobs:
-  build-and-push:
-    runs-on: self-hosted  # Must be your laptop or system with Docker installed
+  build_and_push:
+    runs-on: self-hosted  # This must be your machine with Podman installed
 
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Log in to Docker Hub
@@ -19,13 +19,13 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build Docker image
+    - name: Build the image using Podman
       run: |
         IMAGE_NAME=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
-        docker build -t $IMAGE_NAME .
+        podman build -t $IMAGE_NAME .
 
-    - name: Push Docker image
+    - name: Push the image to Docker Hub using Podman
       run: |
         IMAGE_NAME=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
-        docker push $IMAGE_NAME
+        podman push $IMAGE_NAME
 
