@@ -1,4 +1,4 @@
-name: Build with Docker, Deploy with Minikube (Podman)
+name: Build and Push Docker Image
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - main
 
 jobs:
-  build_and_deploy:
-    runs-on: self-hosted  # This must be your machine with Docker, Podman, and Minikube
+  build-and-push:
+    runs-on: self-hosted  # Must be your laptop or system with Docker installed
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Log in to Docker Hub
@@ -19,44 +19,13 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and Push Image with Docker
+    - name: Build Docker image
       run: |
-        IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
-        docker build -t $IMAGE .
-        docker push $IMAGE
+        IMAGE_NAME=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
+        docker build -t $IMAGE_NAME .
 
-    - name: Deploy to Minikube (Podman runtime) with kubectl
+    - name: Push Docker image
       run: |
-        IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
-
-        # Check if deployment exists
-        if kubectl get deployment myapp-deployment > /dev/null 2>&1; then
-          echo "Updating deployment image..."
-          kubectl set image deployment/myapp-deployment myapp=$IMAGE --record
-        else
-          echo "Creating new deployment..."
-          cat <<EOF | kubectl apply -f -
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: myapp-deployment
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: myapp
-            template:
-              metadata:
-                labels:
-                  app: myapp
-              spec:
-                containers:
-                - name: myapp
-                  image: $IMAGE
-                  ports:
-                  - containerPort: 80
-          EOF
-        fi
-
-        kubectl rollout status deployment/myapp-deployment
+        IMAGE_NAME=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
+        docker push $IMAGE_NAME
 
