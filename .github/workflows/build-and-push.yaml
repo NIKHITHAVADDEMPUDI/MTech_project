@@ -1,5 +1,5 @@
-name: Build, Push, and Deploy to Minikube
-#2
+name: Build with Docker, Deploy with Minikube (Podman)
+
 on:
   push:
     branches:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   build_and_deploy:
-    runs-on: self-hosted  # Run on your own machine with Podman and Minikube
+    runs-on: self-hosted  # This must be your machine with Docker, Podman, and Minikube
 
     steps:
     - name: Checkout code
@@ -19,19 +19,19 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push image with Podman
+    - name: Build and Push Image with Docker
       run: |
         IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
         docker build -t $IMAGE .
         docker push $IMAGE
 
-    - name: Deploy to Minikube with kubectl
+    - name: Deploy to Minikube (Podman runtime) with kubectl
       run: |
         IMAGE=docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest
 
-        # If the deployment exists, update the image. If not, create it.
+        # Check if deployment exists
         if kubectl get deployment myapp-deployment > /dev/null 2>&1; then
-          echo "Updating existing deployment..."
+          echo "Updating deployment image..."
           kubectl set image deployment/myapp-deployment myapp=$IMAGE --record
         else
           echo "Creating new deployment..."
@@ -51,10 +51,10 @@ jobs:
                   app: myapp
               spec:
                 containers:
-                  - name: myapp
-                    image: $IMAGE
-                    ports:
-                      - containerPort: 80
+                - name: myapp
+                  image: $IMAGE
+                  ports:
+                  - containerPort: 80
           EOF
         fi
 
