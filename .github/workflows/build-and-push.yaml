@@ -1,4 +1,4 @@
-name: Build and Push Image with Podman
+name: Build, Push, and Deploy Image to Minikube with Podman
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main  # Trigger when changes are pushed to the `main` branch
 
 jobs:
-  build_and_push:
+  build_and_deploy:
     runs-on: self-hosted  # This must be your machine with Podman installed
 
     steps:
@@ -31,4 +31,39 @@ jobs:
       run: |
         IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Ensure proper naming
         podman push $IMAGE_NAME
+
+    - name: Set up Minikube
+      run: |
+        # Start Minikube with Podman as the driver and CRI-O runtime
+        minikube start --driver=podman --cni=bridge --kubernetes-version=v1.21.0
+
+    - name: Set up kubectl
+      run: |
+        # Set the kubectl context to Minikube
+        kubectl config use-context minikube
+
+    - name: Deploy the app to Minikube
+      run: |
+        # Define the Kubernetes deployment YAML
+        kubectl apply -f - <<EOF
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: myapp-deployment
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: myapp
+          template:
+            metadata:
+              labels:
+                app: myapp
+            spec:
+              containers:
+              - name: myapp
+                image: "${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Use the newly built image
+                ports:
+                - containerPort: 8080
+        EOF
 
