@@ -32,10 +32,14 @@ jobs:
         IMAGE_NAME="${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Ensure proper naming
         podman push $IMAGE_NAME
 
+    - name: Delete existing Minikube cluster (if it exists)
+      run: |
+        minikube delete || echo "No existing Minikube cluster found"  # Delete any existing cluster
+
     - name: Set up Minikube
       run: |
-        # Start Minikube with Podman as the driver and CRI-O runtime
-        minikube start --driver=podman --cni=bridge --kubernetes-version=v1.21.0
+        # Start Minikube with Kubernetes 1.21.0 and Podman as the driver
+        minikube start --kubernetes-version=v1.21.0 --driver=podman --cni=bridge --cri=crio
 
     - name: Set up kubectl
       run: |
