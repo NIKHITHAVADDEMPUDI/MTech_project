@@ -88,8 +88,8 @@ jobs:
           selector:
             app: myapp
           ports:
-            - port: 8080
-              targetPort: 8080
+            - port: 80
+              targetPort: 80
               nodePort: 30007  # Specify the NodePort manually (or let it choose if omitted)
           type: NodePort
         EOF
