@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memory-request-deployment
+spec:
+  replicas: 4  # Number of pods
+  selector:
+    matchLabels:
+      app: memory-request-app
+  template:
+    metadata:
+      labels:
+        app: memory-request-app
+    spec:
+      containers:
+      - name: memory-request-container
+        image: docker.io_nikhithavaddempudi/nginx:alpine  # Replace this with your preferred container image
+        resources:
+          requests:
+            memory: "1736Mi"  # Memory request is set to 1536 MiB (1.5GiB)
+          limits:
+            memory: "1736Mi"  # Optional: You can also set memory limits to 1536 MiB
+

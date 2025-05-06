@@ -1,96 +1,57 @@
-name: Build, Push, and Deploy Image to Minikube with Podman
+name: Build, Push, and Deploy Frontend & Backend to Minikube
 
 on:
   push:
     branches:
-      - main  # Trigger when changes are pushed to the `main` branch
+      - main
 
 jobs:
-  build_and_deploy:
-    runs-on: self-hosted  # This must be your machine with Podman installed
+  build_push_deploy:
+    runs-on: self-hosted
 
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up Podman
       run: |
-        # Check if Podman is installed
-        if ! command -v podman &> /dev/null
-        then
-            echo "Podman is not installed. Installing Podman..."
-            brew install podman  # Install Podman if not installed (macOS)
+        if ! command -v podman &> /dev/null; then
+          echo "Podman is not installed. Installing Podman..."
+          brew install podman
         fi
 
-    - name: Build the image using Podman
+    - name: Build and push frontend image
       run: |
-        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Name your image (e.g., myapp)
-        podman build -t $IMAGE_NAME .  # Use the Dockerfile to build the image
-
-    - name: Push the image to Docker Hub using Podman
-      run: |
-        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Ensure proper naming
+        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/frontend:final"
+        podman build -t $IMAGE_NAME ./frontend
         podman push $IMAGE_NAME
 
-    - name: Delete existing Minikube cluster (if it exists)
+    - name: Build and push backend image
       run: |
-        minikube delete || echo "No existing Minikube cluster found"  # Delete any existing cluster
+        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/backend:final"
+        podman build -t $IMAGE_NAME ./backend
+        podman push $IMAGE_NAME
 
-    - name: Set up Minikube
+    - name: Ensure Minikube cluster (3 nodes)
       run: |
-        # Start Minikube with Podman as the driver and CRI-O runtime (No Kubernetes version specified)
-        minikube start --driver=podman --container-runtime=cri-o --cni=bridge
+        if ! minikube status &> /dev/null; then
+          echo "Starting Minikube cluster with 3 nodes..."
+          minikube start --nodes=3 --driver=podman --container-runtime=cri-o --cni=bridge
+        else
+          echo "Minikube cluster already running."
+        fi
 
-    - name: Set up kubectl
+    - name: Set up kubectl context
+      run: kubectl config use-context minikube
+
+    - name: Apply all Kubernetes manifests
       run: |
-        # Set the kubectl context to Minikube
-        kubectl config use-context minikube
+        find ./manifests -name '*.yaml' -exec kubectl apply -f {} \;
 
-    - name: Pull the image from Docker Hub
+    - name: Run all Python scripts in parallel
       run: |
-        IMAGE_NAME="docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Correct the image name
-        podman pull $IMAGE_NAME  # Pull the image from Docker Hub
-
-    - name: Deploy the app to Minikube
-      run: |
-        # Define the Kubernetes deployment YAML
-        kubectl apply -f - <<EOF
-        apiVersion: apps/v1
-        kind: Deployment
-        metadata:
-          name: myapp-deployment
-        spec:
-          replicas: 1
-          selector:
-            matchLabels:
-              app: myapp
-          template:
-            metadata:
-              labels:
-                app: myapp
-            spec:
-              containers:
-              - name: myapp
-                image: "docker.io/${{ secrets.DOCKER_USERNAME }}/myapp:latest"  # Use the newly built image from Docker Hub
-                ports:
-                - containerPort: 8080
-        EOF
-
-    - name: Create NodePort Service
-      run: |
-        # Define the explicit NodePort service YAML without protocol
-        kubectl apply -f - <<EOF
-        apiVersion: v1
-        kind: Service
-        metadata:
-          name: myapp-service
-        spec:
-          selector:
-            app: myapp
-          ports:
-            - port: 80
-              targetPort: 80
-              nodePort: 30007  # Specify the NodePort manually (or let it choose if omitted)
-          type: NodePort
-        EOF
-
+        for script in $(find ./scripts -name '*.py'); do
+          echo "Starting $script ..."
+          python3 $script &
+        done
+        wait

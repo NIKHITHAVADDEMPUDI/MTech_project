@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stress-ng-deployment
+spec:
+  replicas: 2  # Number of pods
+  selector:
+    matchLabels:
+      app: stress-ng
+  template:
+    metadata:
+      labels:
+        app: stress-ng
+    spec:
+      containers:
+      - name: stress-ng
+        image: docker.io/nikhithavaddempudi/stress-ng
+        args:
+        - "--cpu"
+        - "2"  # Stress 2 CPUs per pod
+        - "--timeout"
+        - "0"  # Run indefinitely (no timeout)
+        resources:
+          requests:
+            cpu: "1"  # Request 1 CPU for each pod
+          limits:
+            cpu: "2"  # Limit each pod to 2 CPUs
+      nodeSelector:
+        kubernetes.io/hostname: minikube-m02 # Target the specific node
+      restartPolicy: Always

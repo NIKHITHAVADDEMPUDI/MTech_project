@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Mi
+  storageClassName: standard
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: minikube-m03
+      containers:
+        - name: backend
+          image: docker.io/nikhithavaddempudi/backend-app3:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: backend-storage
+              mountPath: /mnt/data/votes
+      volumes:
+        - name: backend-storage
+          persistentVolumeClaim:
+            claimName: backend-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 80       # Exposing backend service on port 80
+      targetPort: 80 # Forwarding to backend container's port 80
+      nodePort: 30002 # You can access the backend at this port on Minikube node
+  type: NodePort   
