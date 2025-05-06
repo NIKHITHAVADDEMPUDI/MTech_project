@@ -35,7 +35,7 @@ jobs:
       run: |
         if ! minikube status &> /dev/null; then
           echo "Starting Minikube cluster with 3 nodes..."
-          minikube start --nodes=3 --driver=podman --container-runtime=cri-o --cni=bridge
+          minikube start --driver=podman --container-runtime=cri-o --nodes=3
         else
           echo "Minikube cluster already running."
         fi
