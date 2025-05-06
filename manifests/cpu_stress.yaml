@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: stress-ng
-        image: docker.io/nikhithavaddempudi/stress-ng
+        image: docker.io/nikhithavaddempudi/stress-ng:latest
         args:
         - "--cpu"
         - "2"  # Stress 2 CPUs per pod

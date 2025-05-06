@@ -1,5 +1,4 @@
 name: Build, Push, and Deploy Frontend & Backend to Minikube
-#hi
 on:
   push:
     branches:
@@ -48,10 +47,10 @@ jobs:
       run: |
         find ./manifests -name '*.yaml' -exec kubectl apply -f {} \;
 
-    - name: Run all Python scripts in parallel
+    - name: Run all Python scripts in parallel with separate terminals
       run: |
         for script in $(find ./scripts -name '*.py'); do
-          echo "Starting $script ..."
-          python3 $script &
+          echo "Starting $script in a new terminal..."
+          osascript -e "tell app \"Terminal\" to do script \"python3 $script\""
         done
-        wait
+
