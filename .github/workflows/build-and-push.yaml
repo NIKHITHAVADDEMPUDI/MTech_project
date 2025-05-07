@@ -51,6 +51,5 @@ jobs:
       run: |
         for script in $(find ./scripts -name '*.py'); do
           echo "Starting $script in a new terminal..."
-          osascript -e "tell app \"Terminal\" to do script \"python3 /Users/vaddempudinikhitha/Desktop/project/MTech_project$script\""
+          osascript -e "tell app \"Terminal\" to do script \"python3 $PWD/$script\""
         done
-

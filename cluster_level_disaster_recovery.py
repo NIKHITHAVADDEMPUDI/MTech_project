@@ -14,9 +14,9 @@ KUBECTL_PATH = '/opt/homebrew/bin/kubectl'
 YQ_PATH = '/opt/homebrew/bin/yq'
 NEAT_PATH = '/Users/vaddempudinikhitha/.krew/bin/kubectl-neat'
 
-BACKUP_FILE = str(Path(__file__).parent / "/Users/vaddempudinikhitha/Desktop/backup/combined.yaml")
-BACKUP_DIR = str(Path(__file__).parent / "/Users/vaddempudinikhitha/Desktop/backup/backup")
-NODE_COUNT_FILE = str(Path(__file__).parent / "/Users/vaddempudinikhitha/Desktop/backup/node_count.txt")  # ← NEW
+BACKUP_FILE = str(Path(__file__).parent / "combined.yaml")
+BACKUP_DIR = str(Path(__file__).parent / "backup")
+NODE_COUNT_FILE = str(Path(__file__).parent / "node_count.txt")  # ← NEW
 
 def run_command(command):
     result = subprocess.run(command, capture_output=True, text=True, shell=True)
