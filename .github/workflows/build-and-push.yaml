@@ -46,7 +46,13 @@ jobs:
     - name: Apply all Kubernetes manifests
       run: |
         find ./manifests -name '*.yaml' -exec kubectl apply -f {} \;
-
+    - name: Print working directory
+      run: |
+    	echo "Current working directory: $PWD"
+    	echo "Backup file: $PWD/combined.yaml"
+    	echo "Backup directory: $PWD/backup"
+    	echo "Node count file: $PWD/node_count.txt"
+    
     - name: Run all Python scripts in parallel with separate terminals
       run: |
         for script in $(find ./scripts -name '*.py'); do
