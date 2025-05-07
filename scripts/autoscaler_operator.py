@@ -81,7 +81,7 @@ def monitor_and_scale():
         else:
             print("No pending pods requiring new nodes.")
 
-        time.sleep(60)
+        time.sleep(90)
 
 if __name__ == "__main__":
     monitor_and_scale()

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: memory-request-container
-        image: docker.io_nikhithavaddempudi/nginx:alpine  # Replace this with your preferred container image
+        image: ddocker.io/library/nginx:latest  # Replace this with your preferred container image
         resources:
           requests:
             memory: "1736Mi"  # Memory request is set to 1536 MiB (1.5GiB)
