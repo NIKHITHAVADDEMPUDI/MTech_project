@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-#hi3
+
 jobs:
   build_push_deploy:
     runs-on: self-hosted
@@ -33,11 +33,15 @@ jobs:
 
     - name: Ensure Minikube cluster (3 nodes)
       run: |
-        if ! minikube status &> /dev/null; then
-          echo "Starting Minikube cluster with 3 nodes..."
+        echo "Checking Minikube cluster status..."
+        # Get the number of nodes in the current Minikube cluster
+        MINIKUBE_NODE_COUNT=$(kubectl get nodes --no-headers | wc -l)
+        
+        if [ "$MINIKUBE_NODE_COUNT" -lt 3 ]; then
+          echo "Minikube cluster has less than 3 nodes. Starting Minikube cluster with 3 nodes..."
           minikube start --driver=podman --container-runtime=cri-o --nodes=3
         else
-          echo "Minikube cluster already running."
+          echo "Minikube cluster already has $MINIKUBE_NODE_COUNT nodes."
         fi
 
     - name: Wait until all Minikube nodes are Ready
