@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-#hi1
+#hi2
 jobs:
   build_push_deploy:
     runs-on: self-hosted

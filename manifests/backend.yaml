@@ -28,7 +28,7 @@ spec:
         kubernetes.io/hostname: minikube-m03
       containers:
         - name: backend
-          image: docker.io/nikhithavaddempudi/backend-app:final
+          image: docker.io/nikhithavaddempudi/backend:final
           ports:
             - containerPort: 80
           volumeMounts:

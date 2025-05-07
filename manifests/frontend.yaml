@@ -16,7 +16,7 @@ spec:
         kubernetes.io/hostname: minikube-m02
       containers:
         - name: frontend
-          image: docker.io/nikhithavaddempudi/frontend-app:final
+          image: docker.io/nikhithavaddempudi/frontend:final
           imagePullPolicy: Always
           ports:
             - containerPort: 80
