@@ -40,6 +40,27 @@ jobs:
           echo "Minikube cluster already running."
         fi
 
+    - name: Wait until all Minikube nodes are Ready
+      run: |
+        echo "Waiting for all Minikube nodes to be Ready..."
+        READY_NODES=0
+        TOTAL_NODES=3
+        TIMEOUT=300
+        ELAPSED=0
+        while [ "$READY_NODES" -lt "$TOTAL_NODES" ] && [ "$ELAPSED" -lt "$TIMEOUT" ]; do
+          READY_NODES=$(kubectl get nodes --no-headers | grep -c ' Ready')
+          echo "$READY_NODES/$TOTAL_NODES nodes are Ready..."
+          if [ "$READY_NODES" -lt "$TOTAL_NODES" ]; then
+            sleep 10
+            ELAPSED=$((ELAPSED + 10))
+          fi
+        done
+        if [ "$READY_NODES" -lt "$TOTAL_NODES" ]; then
+          echo "Timeout waiting for nodes to be Ready."
+          exit 1
+        fi
+        echo "All Minikube nodes are Ready!"
+
     - name: Set up kubectl context
       run: kubectl config use-context minikube
 
@@ -58,6 +79,5 @@ jobs:
       run: |
         for script in $(find ./scripts -name '*.py'); do
           echo "Starting $script in a new terminal..."
-          # Using osascript to open a new terminal window for each script
-          osascript -e "tell app \"Terminal\" to do script \"python3 $PWD/$script\""
+          osascript -e "tell app \"Terminal\" to do script \"cd $PWD && python3 $script\""
         done
