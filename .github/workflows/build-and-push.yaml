@@ -77,3 +77,16 @@ jobs:
           echo "Starting $script in a new terminal..."
           osascript -e "tell app \"Terminal\" to do script \"cd $PWD && python3 $script\""
         done
+
+    # Start npm in Minikube_Dashboard/frontend
+    - name: Start Minikube Dashboard Frontend
+      run: |
+        echo "Starting Minikube_Dashboard/frontend npm start in a new terminal..."
+        osascript -e "tell app \"Terminal\" to do script \"cd $PWD/Minikube_Dashboard/Frontend && npm start\""
+
+    # Start Minikube Dashboard Backend
+    - name: Start Minikube Dashboard Backend
+      run: |
+        echo "Starting Minikube_Dashboard/backend python3 app.py in a new terminal..."
+        osascript -e "tell app \"Terminal\" to do script \"cd $PWD/Minikube_Dashboard/Backend && python3 app.py\""
+
