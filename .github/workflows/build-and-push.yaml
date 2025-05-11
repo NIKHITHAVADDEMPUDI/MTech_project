@@ -86,7 +86,7 @@ jobs:
     - name: Start Minikube Dashboard Frontend
       run: |
         echo "Starting Minikube_Dashboard/frontend npm start in a new terminal..."
-        osascript -e "tell app \"Terminal\" to do script \"cd $PWD/Minikube_Dashboard/Frontend_one/src && npm start\""
+        osascript -e "tell app \"Terminal\" to do script \"cd ~/Desktop/project/Mtech_project/Minikube_Dashboard/Frontend_one/src && npm start\""
 
     # Start Minikube Dashboard Backend
     - name: Start Minikube Dashboard Backend
