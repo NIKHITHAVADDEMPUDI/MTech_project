@@ -70,6 +70,10 @@ jobs:
         echo "Backup file: $PWD/combined.yaml"
         echo "Backup directory: $PWD/backup"
         echo "Node count file: $PWD/node_count.txt"
+    - name: Wait before launching operators
+      run: |
+        echo "Waiting for 2 minutes before launching operators..."
+        sleep 120    
 
     - name: Run all Python scripts in parallel with separate terminals
       run: |
