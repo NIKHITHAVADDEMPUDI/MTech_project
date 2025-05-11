@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: stress-ng-deployment
 spec:
-  replicas: 2  # Number of pods
+  replicas: 1  # Number of pods
   selector:
     matchLabels:
       app: stress-ng
