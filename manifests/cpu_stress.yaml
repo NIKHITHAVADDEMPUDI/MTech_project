@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: stress-ng-deployment
 spec:
-  replicas: 1  # Number of pods
+  replicas: 2
   selector:
     matchLabels:
       app: stress-ng
@@ -17,14 +17,16 @@ spec:
         image: docker.io/nikhithavaddempudi/stress-ng:latest
         args:
         - "--cpu"
-        - "2"  # Stress 2 CPUs per pod
+        - "1"  # Stress 1 CPU per pod
+        - "--cpu-load"
+        - "41"  # Stress 80% of the CPU per worker
         - "--timeout"
-        - "0"  # Run indefinitely (no timeout)
+        - "3600s"  # Run for exactly 1 hour
         resources:
           requests:
-            cpu: "1"  # Request 1 CPU for each pod
+            cpu: "2"  # Request 2 CPUs per pod (this will simulate ~82% of a 5-CPU node across 2 pods)
           limits:
-            cpu: "2"  # Limit each pod to 2 CPUs
+            cpu: "2"  # Limit the pod's CPU usage to 2 CPUs
       nodeSelector:
-        kubernetes.io/hostname: minikube-m02 # Target the specific node
-      restartPolicy: Always
+        kubernetes.io/hostname: minikube-m02  # Target the specific node
+      restartPolicy: Always  # Pods will be restarted after 1 hour

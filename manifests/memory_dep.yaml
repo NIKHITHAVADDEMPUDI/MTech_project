@@ -14,10 +14,10 @@ spec:
     spec:
       containers:
       - name: memory-request-container
-        image: docker.io/library/nginx:latest  # Replace this with your preferred container image
+        image: docker.io/library/nginx:latest 
         resources:
           requests:
-            memory: "1736Mi"  # Memory request is set to 1536 MiB (1.5GiB)
+            memory: "1736Mi"  # Memory request is set to (1.7GiB)
           limits:
-            memory: "1736Mi"  # Optional: You can also set memory limits to 1536 MiB
+            memory: "1736Mi"  
 
